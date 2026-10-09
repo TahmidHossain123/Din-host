@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — DIN Host</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/dashboard.html" class="brand">
+      <span style="font-size: 1.3rem;">⚡</span> DIN Host
+    </a>
+    <div class="nav-links">
+      <span id="userBadge" class="badge"></span>
+      <a href="/admin" id="adminLink" style="display:none; color: #fdba74; font-weight: bold;">Admin Panel</a>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="banner-warning">
+      ⚠️ <strong>Notice:</strong> This service runs on Render Free tier with ephemeral storage. If the instance hibernates, files are reset. Keep local backups of your HTML codes.
+    </div>
+
+    <div id="statusBox" class="status-box"></div>
+
+    <section class="card">
+      <h2>🚀 Deploy Website</h2>
+      <form id="deployForm">
+        <div class="form-group">
+          <label>Website Subdomain (Alphanumeric only)</label>
+          <input type="text" id="subdomain" required pattern="[a-zA-Z0-9-]+" placeholder="e.g. portfolio">
+        </div>
+
+        <div class="form-group">
+          <label>Website Title</label>
+          <input type="text" id="title" placeholder="e.g. John's Portfolio">
+        </div>
+
+        <div class="form-group">
+          <label>HTML Document</label>
+          <div class="file-upload-wrapper" id="dropArea">
+            <input type="file" id="htmlFile" accept=".html,.htm" required>
+            <div class="file-icon">📄</div>
+            <div class="file-upload-text">Click or drag your .html file here</div>
+            <div class="file-upload-hint">Only standalone .html or .htm files supported</div>
+            <div id="fileDisplay" class="selected-file-name" style="display: none;"></div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="uploadBtn">
+          <span>Publish Website Instantly</span>
+        </button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>🌐 Your Hosted Websites</h2>
+      <div id="siteList" class="site-list">
+        <p style="color: var(--text-muted);">No websites deployed yet.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    DIN Host &copy; Pure Client-Side Static Host Engine
+  </footer>
+
+  <script src="/js/dashboard.js"></script>
+  <script>
+    const htmlFileInput = document.getElementById('htmlFile');
+    const fileDisplay = document.getElementById('fileDisplay');
+
+    htmlFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        fileDisplay.textContent = 'Selected: ' + e.target.files[0].name;
+        fileDisplay.style.display = 'inline-block';
+      } else {
+        fileDisplay.style.display = 'none';
+      }
+    });
+
+    deployForm.onsubmit = async (e) => {
+      e.preventDefault();
+      uploadBtn.disabled = true;
+      showStatus('Uploading and deploying website...');
+
+      const formData = new FormData();
+      formData.append('subdomain', document.getElementById('subdomain').value);
+      formData.append('title', document.getElementById('title').value);
+      formData.append('htmlFile', htmlFileInput.files[0]);
+
+      try {
+        const res = await fetch('/api/sites/deploy', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Deployment failed');
+        showStatus(result.message, false);
+        deployForm.reset();
+        fileDisplay.style.display = 'none';
+        loadSites();
+      } catch (err) {
+        showStatus(err.message, true);
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>
