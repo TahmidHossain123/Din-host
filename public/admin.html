@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Operations - DIN Host</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/dashboard.html" class="brand">DIN Host (Admin)</a>
+    <div class="nav-links">
+      <a href="/dashboard.html">User Dashboard</a>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div id="statusBox" class="status-box"></div>
+
+    <div class="card" style="display: flex; gap: 2rem;">
+      <div>
+        <h3 id="statUsers">0</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Registered Users</p>
+      </div>
+      <div>
+        <h3 id="statSites">0</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Deployed Sites</p>
+      </div>
+    </div>
+
+    <section class="card">
+      <h2>Platform Sites</h2>
+      <div id="adminSitesList" class="site-list">Loading...</div>
+    </section>
+
+    <section class="card">
+      <h2>Registered Accounts</h2>
+      <div id="adminUsersList" class="site-list">Loading...</div>
+    </section>
+  </main>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
