@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIN Host - Ephemeral Static Web Hosting</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/" class="brand">DIN Host</a>
+    <div class="nav-links">
+      <a href="/login.html">Login</a>
+      <a href="/register.html">Register</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="banner-warning">
+      <strong>Notice regarding free hosting limitations:</strong> This system runs on Render's Free Web Service. Local storage is strictly <strong>ephemeral</strong>. Whenever this service goes to sleep or restarts, deployed sites and data revert. Files must be re-uploaded. Permanent storage and 100% uptime are not supported under this zero-cost architecture.
+    </div>
+
+    <section class="card">
+      <h1>Free Static Website Hosting Engine</h1>
+      <p style="margin-bottom: 1rem; color: var(--text-muted);">
+        Deploy lightweight client-side websites (HTML, CSS, JS, images) by packaging them into a standard <code>.zip</code> file with an <code>index.html</code> in the archive root.
+      </p>
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="/register.html"><button class="btn-primary">Create Free Account</button></a>
+        <a href="/login.html"><button class="btn-primary" style="background-color: var(--bg-card); color: #fff;">Existing Account</button></a>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Platform Technical Specifications</h2>
+      <ul style="list-style-position: inside; color: var(--text-muted);">
+        <li>Upload Ceiling: 10 MB per ZIP bundle.</li>
+        <li>Decompressed Limits: 25 MB and 100 files max per project.</li>
+        <li>Execution Policy: Pure static assets only. Executable code (PHP, Node, Python, Shell) is forbidden and automatically rejected.</li>
+        <li>Subdomains: Path-based serving (<code>/sites/:id/</code>) functions immediately; direct subdomains require complete DNS routing.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    DIN Host &copy; Zero-Cost Infrastructure Engine &bull; Endpoint: <a href="/health" style="color:var(--accent);">/health</a>
+  </footer>
+</body>
+</html>
