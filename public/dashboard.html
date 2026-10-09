@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — DIN Host</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-content {
+      width: 100%;
+      max-width: 520px;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/dashboard.html" class="brand">
+      <span style="font-size: 1.3rem;">⚡</span> DIN Host
+    </a>
+    <div class="nav-links">
+      <span id="userBadge" class="badge"></span>
+      <a href="/admin" id="adminLink" style="display:none; color: #fdba74; font-weight: bold;">Admin Panel</a>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="banner-warning">
+      ⚠️ <strong>Notice:</strong> This service runs on Render Free tier with ephemeral storage. If the instance hibernates, files are reset. Keep local backups of your HTML codes.
+    </div>
+
+    <div id="statusBox" class="status-box"></div>
+
+    <!-- Deploy Section -->
+    <section class="card">
+      <h2>🚀 Deploy New Website</h2>
+      <form id="deployForm">
+        <div class="form-group">
+          <label>Website Subdomain (Alphanumeric only)</label>
+          <input type="text" id="subdomain" required pattern="[a-zA-Z0-9-]+" placeholder="e.g. youtube-clone">
+        </div>
+
+        <div class="form-group">
+          <label>Website Title</label>
+          <input type="text" id="title" placeholder="e.g. My Awesome Brand" required>
+        </div>
+
+        <div class="form-group">
+          <label>Brand Logo URL (Catbox or any direct Image link)</label>
+          <input type="text" id="logoUrl" placeholder="https://files.catbox.moe/abc123.png">
+        </div>
+
+        <div class="form-group">
+          <label>HTML Document</label>
+          <div class="file-upload-wrapper" id="dropArea">
+            <input type="file" id="htmlFile" accept=".html,.htm" required>
+            <div class="file-icon">📄</div>
+            <div class="file-upload-text">Click or drag your .html file here</div>
+            <div class="file-upload-hint">Only standalone .html or .htm files supported</div>
+            <div id="fileDisplay" class="selected-file-name" style="display: none;"></div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="uploadBtn">
+          <span>Publish Website Instantly</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal" style="display: none;">
+      <div class="modal-content card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h2 style="margin:0;">✏️ Edit Website</h2>
+          <button id="closeEditBtn" style="background:none; border:none; color:#fff; font-size:1.8rem; cursor:pointer;">&times;</button>
+        </div>
+        <form id="editForm">
+          <input type="hidden" id="editSiteId">
+          <div class="form-group">
+            <label>Website Title</label>
+            <input type="text" id="editTitle" required>
+          </div>
+          <div class="form-group">
+            <label>Brand Logo URL (Catbox/Direct Link)</label>
+            <input type="text" id="editLogoUrl">
+          </div>
+          <div class="form-group">
+            <label>Change HTML File (Leave empty to keep current code)</label>
+            <input type="file" id="editHtmlFile" accept=".html,.htm">
+          </div>
+          <button type="submit" class="btn-primary" id="saveEditBtn">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Sites List -->
+    <section class="card">
+      <h2>🌐 Your Hosted Websites</h2>
+      <div id="siteList" class="site-list">
+        <p style="color: var(--text-muted);">No websites deployed yet.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    DIN Host &copy; Pure Client-Side Static Host Engine
+  </footer>
+
+  <script src="/js/dashboard.js"></script>
+  <script>
+    const htmlFileInput = document.getElementById('htmlFile');
+    const fileDisplay = document.getElementById('fileDisplay');
+    const editModal = document.getElementById('editModal');
+    const closeEditBtn = document.getElementById('closeEditBtn');
+
+    htmlFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        fileDisplay.textContent = 'Selected: ' + e.target.files[0].name;
+        fileDisplay.style.display = 'inline-block';
+      } else {
+        fileDisplay.style.display = 'none';
+      }
+    });
+
+    closeEditBtn.onclick = () => { editModal.style.display = 'none'; };
+
+    deployForm.onsubmit = async (e) => {
+      e.preventDefault();
+      uploadBtn.disabled = true;
+      showStatus('Uploading and deploying website...');
+
+      const formData = new FormData();
+      formData.append('subdomain', document.getElementById('subdomain').value);
+      formData.append('title', document.getElementById('title').value);
+      formData.append('logo_url', document.getElementById('logoUrl').value);
+      formData.append('htmlFile', htmlFileInput.files[0]);
+
+      try {
+        const res = await fetch('/api/sites/deploy', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Deployment failed');
+        showStatus(result.message, false);
+        deployForm.reset();
+        fileDisplay.style.display = 'none';
+        loadSites();
+      } catch (err) {
+        showStatus(err.message, true);
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    };
+
+    // Edit Form Submission
+    document.getElementById('editForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveEditBtn');
+      saveBtn.disabled = true;
+      showStatus('Updating website...');
+
+      const id = document.getElementById('editSiteId').value;
+      const formData = new FormData();
+      formData.append('title', document.getElementById('editTitle').value);
+      formData.append('logo_url', document.getElementById('editLogoUrl').value);
+      
+      const file = document.getElementById('editHtmlFile').files[0];
+      if (file) formData.append('htmlFile', file);
+
+      try {
+        const res = await fetch(`/api/sites/update/${id}`, {
+          method: 'POST',
+          body: formData
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Update failed');
+        showStatus(result.message, false);
+        editModal.style.display = 'none';
+        loadSites();
+      } catch (err) {
+        showStatus(err.message, true);
+      } finally {
+        saveBtn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>
