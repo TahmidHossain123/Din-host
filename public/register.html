@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - DIN Host</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav>
+    <a href="/" class="brand">DIN Host</a>
+    <div class="nav-links">
+      <a href="/login.html">Login</a>
+    </div>
+  </nav>
+
+  <main class="container" style="max-width: 420px;">
+    <div id="statusBox" class="status-box"></div>
+    <div class="card">
+      <h2>Create Account</h2>
+      <form id="registerForm">
+        <div>
+          <label>Email Address</label>
+          <input type="email" id="email" required autocomplete="email">
+        </div>
+        <div>
+          <label>Password (Min 6 characters)</label>
+          <input type="password" id="password" required minlength="6" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn-primary">Complete Registration</button>
+      </form>
+      <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+        Already registered? <a href="/login.html" style="color: var(--accent);">Sign in</a>.
+      </p>
+    </div>
+  </main>
+  <script src="/js/auth.js"></script>
+</body>
+</html>
